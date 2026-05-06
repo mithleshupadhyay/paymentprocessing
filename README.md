@@ -142,10 +142,18 @@ Expected result:
 - background processing starts automatically
 - simulated gateway later moves it to `Success`, `Failed`, or back to `Pending` for retry
 
-Copy the returned `payment.id`:
+Copy the returned `payment.id` into a shell variable. Replace the example value with the exact id from your response:
 
 ```bash
 PAYMENT_ID="pay_replace_with_returned_id"
+```
+
+Do not write `${pay_...}` directly. `${...}` is shell-variable syntax, so it only works with a variable name such as `${PAYMENT_ID}`.
+
+You can also call the endpoint with the id directly:
+
+```bash
+curl -s "http://localhost:3000/v1/payments/pay_replace_with_returned_id" | jq
 ```
 
 ### 2. Check Status
