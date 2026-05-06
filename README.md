@@ -1,10 +1,56 @@
 # Payment Processing System
 
-SoluLab mid-level Node.js backend assignment for a fintech-style payment processing service.
+This is used for a fintech-style payment processing service.
 
 The service supports payment initiation, status tracking, retry handling, idempotency, concurrency control, external gateway simulation, webhook handling, and traceable payment events.
 
 The MVP uses an in-memory repository so the assignment runs without external services. The repository keeps the same invariants expected from a database-backed implementation: unique idempotency keys, unique webhook event ids, attempt records, payment-level locking, and versioned updates.
+
+## System Design
+
+```mermaid
+flowchart LR
+    Client["Client / Postman / curl"] --> API["Express API<br/>src/paymentprocessing/api"]
+    API --> Service["PaymentService<br/>lifecycle orchestration"]
+    Service --> Repo["InMemoryPaymentRepository<br/>idempotency, attempts, webhooks, locks"]
+    Service --> Scheduler["TimerRetryScheduler<br/>exponential backoff"]
+    Scheduler --> Service
+    Service --> Gateway["SimulatedPaymentGateway<br/>success, failure, delay, timeout"]
+    Service --> Logger["Structured JSON Logs"]
+    Repo --> Store[("In-memory store<br/>DB-style invariants")]
+```
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API
+    participant Service as PaymentService
+    participant Repo as Repository
+    participant Gateway as Simulated Gateway
+    participant Scheduler as Retry Scheduler
+
+    Client->>API: POST /v1/payments + Idempotency-Key
+    API->>Service: initiatePayment()
+    Service->>Repo: createPayment()
+    Repo-->>Service: Pending payment or existing payment
+    Service->>Scheduler: schedule initial processing
+    API-->>Client: 201 created or 200 idempotency reuse
+
+    Scheduler->>Service: processPayment(paymentId)
+    Service->>Repo: lock payment, move Pending -> Processing, create attempt
+    Service->>Gateway: charge()
+    Gateway-->>Service: Success / Failed / Timeout
+    Service->>Repo: write attempt result and final state
+
+    alt Gateway success
+        Service->>Repo: Processing -> Success
+    else Attempts remaining
+        Service->>Repo: Processing -> Pending with nextRetryAt
+        Service->>Scheduler: schedule retry with backoff
+    else Attempts exhausted
+        Service->>Repo: Processing -> Failed
+    end
+```
 
 ## Structure
 
