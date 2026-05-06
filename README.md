@@ -117,6 +117,8 @@ curl -s http://localhost:3000/ | jq
 curl -s http://localhost:3000/health | jq
 curl -s http://localhost:3000/openapi.json | jq
 ```
+<img width="956" height="783" alt="image" src="https://github.com/user-attachments/assets/df7d4ac8-9ff2-4998-a3c7-6d9790fde102" />
+
 
 ### 1. Initiate Payment
 
@@ -141,6 +143,8 @@ Expected result:
 - payment starts as `Pending`
 - background processing starts automatically
 - simulated gateway later moves it to `Success`, `Failed`, or back to `Pending` for retry
+
+<img width="956" height="783" alt="image" src="https://github.com/user-attachments/assets/d632b0a7-70ae-43cd-beb7-be471651b0d0" />
 
 Copy the returned `payment.id` into a shell variable. Replace the example value with the exact id from your response:
 
@@ -169,6 +173,8 @@ Expected result after a short delay:
 - `Processing` while a gateway attempt is running
 - `Failed` when retry attempts are exhausted
 
+<img width="956" height="783" alt="image" src="https://github.com/user-attachments/assets/bad3454c-e9c2-4400-892c-f8aa868628d7" />
+
 ### 3. Check Attempts And Events
 
 ```bash
@@ -179,6 +185,8 @@ Expected result:
 
 - `attempts` shows gateway attempts, latency, outcome, and error reason if any
 - `webhookEvents` shows callback events and ignored reasons when applicable
+
+<img width="956" height="871" alt="image" src="https://github.com/user-attachments/assets/919476c5-3d70-4921-adec-ecc7c588334e" />
 
 ### 4. Test Idempotency
 
@@ -202,6 +210,8 @@ Expected result:
 - `idempotencyReused: true`
 - same `payment.id` as the first request
 
+<img width="956" height="761" alt="image" src="https://github.com/user-attachments/assets/07581cef-0ea9-4168-8fba-44340c11a52b" />
+
 ### 5. Trigger Manual Processing
 
 If the payment is still `Pending`, manually trigger processing:
@@ -215,6 +225,8 @@ Expected result:
 - creates a new attempt when processing is allowed
 - returns `payment_already_processing` if another attempt is active
 - returns `payment_already_terminal` if payment is already `Success` or `Failed`
+
+<img width="956" height="761" alt="image" src="https://github.com/user-attachments/assets/6eb226a7-ab6f-4e33-b148-9ab6e6b17fa5" />
 
 ### 6. Send Gateway Webhook
 
@@ -240,6 +252,8 @@ Expected result:
 - if the payment is already `Success`, webhook is recorded and ignored with `already_terminal_same_status`
 - if the payment is already `Failed`, webhook is recorded and ignored with `terminal_state_conflict`
 
+<img width="956" height="805" alt="image" src="https://github.com/user-attachments/assets/37d3e869-d1f7-441d-950a-6ba21274c53c" />
+
 ### 7. Test Duplicate Webhook
 
 Run the same webhook request again with the same `providerEventId`:
@@ -259,6 +273,8 @@ Expected result:
 
 - `accepted: false`
 - `ignoredReason: duplicate_callback`
+
+<img width="956" height="805" alt="image" src="https://github.com/user-attachments/assets/f17dbe7b-0308-4f80-af86-663585e42360" />
 
 ### 8. Test Conflicting Webhook
 
@@ -280,6 +296,8 @@ Expected result:
 - terminal status is not overwritten
 - conflicting callback is recorded with `terminal_state_conflict`
 
+<img width="956" height="805" alt="image" src="https://github.com/user-attachments/assets/5addf922-95ed-4eb6-96d2-dc51dbec161c" />
+
 ### 9. Test Validation Error
 
 Send an invalid minor-unit amount:
@@ -299,6 +317,8 @@ Expected result:
 - HTTP `400`
 - `VALIDATION_ERROR`
 - no payment is created
+
+<img width="956" height="541" alt="image" src="https://github.com/user-attachments/assets/e9f0cb14-4a9c-4012-a9d6-4549c096e694" />
 
 ### 10. Clean One-Line Smoke Test
 
