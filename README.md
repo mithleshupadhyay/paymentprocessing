@@ -8,6 +8,8 @@ The MVP uses an in-memory repository so the assignment runs without external ser
 
 ## System Design
 
+For detailed architecture and implementation design, see [docs/HLD.md](docs/HLD.md) and [docs/LLD.md](docs/LLD.md).
+
 ```mermaid
 flowchart LR
     Client["Client / Postman / curl"] --> API["Express API<br/>src/paymentprocessing/api"]
